@@ -4,8 +4,12 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
-const whatsappRoutes = require('./routes/whatsappRoutes');
-const errorMiddleware = require('./middlewares/errorMiddleware');
+const commentRoutes = require('./routes/commentRoutes');
+const roleRoutes = require('./routes/roleRoutes');
+
+// const whatsappRoutes = require('./routes/whatsappRoutes');
+const errorMiddleware = require('./middleware/errorMiddleware');
+
 
 dotenv.config();
 connectDB();
@@ -16,8 +20,11 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
-app.use(errorMiddleware);
-app.use('/api/whatsapp', whatsappRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api', roleRoutes);
+// app.use('/api/whatsapp', whatsappRoutes);
+
+
 
 app.use(errorMiddleware);
 

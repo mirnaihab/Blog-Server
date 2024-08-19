@@ -15,14 +15,21 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    phoneNumber: {
+        type: String,
+        required: true,
+    },
     roles: [{ 
         type: mongoose.Schema.Types.ObjectId,
          ref: 'Role' 
     }],
-    isAdmin: {
-        type: Boolean,
-        default: false,
+    resetPasswordToken: { 
+        type: String 
     },
+    resetPasswordExpires: { 
+        type: Date 
+    },
+  
 });
 
 const User = mongoose.model('User', UserSchema);
