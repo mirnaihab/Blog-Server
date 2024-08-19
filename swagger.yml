@@ -201,7 +201,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                phoneNumber:
+                  type: string
       responses:
         '201':
           description: User created successfully
@@ -231,7 +240,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                phoneNumber:
+                  type: string
       responses:
         '200':
           description: User updated successfully
@@ -241,7 +259,7 @@ paths:
     delete:
       tags:
         - Users
-      summary: Delete a user by ID (only if they don't have the AssignRoles role)
+      summary: Delete a user by ID (only if they are not admins)
       parameters:
         - $ref: '#/components/parameters/UserId'
       responses:
@@ -334,6 +352,15 @@ paths:
           description: Not authorized to delete this post
 
   /api/comments:
+    get:
+      tags:
+        - Comments
+      summary: Get all comments
+      responses:
+        '200':
+          description: A list of comments
+  paths:
+  /api/comments/{id}:
     post:
       tags:
         - Comments
@@ -348,20 +375,9 @@ paths:
               properties:
                 body:
                   type: string
-                postId:
-                  type: string
       responses:
         '201':
           description: Comment added successfully
-    get:
-      tags:
-        - Comments
-      summary: Get all comments
-      responses:
-        '200':
-          description: A list of comments
-  paths:
-  /api/comments/{id}:
     put:
       tags:
         - Comments
@@ -486,14 +502,17 @@ paths:
       parameters:
         - $ref: '#/components/parameters/UserId'
       requestBody:
-        description: List of role IDs to assign
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                type: string
+              type: object
+              properties:
+                roles:
+                  type: array
+                  items:
+                    type: string
+                  example: ["DeletePosts", "EditPosts"]
       responses:
         '200':
           description: Roles assigned successfully

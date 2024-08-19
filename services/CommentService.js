@@ -4,7 +4,8 @@ const Post = require('../models/Post');
 exports.addComment = async (commentData, userId, postId) => {
     const comment = new Comment({
         ...commentData,
-        user: userId,
+        author: userId,
+        post:postId
     });
     await comment.save();
 
@@ -40,5 +41,7 @@ exports.deleteComment = async (commentId, userId, userRoles) => {
     if (comment.author.toString() !== userId.toString() && !userRoles.includes('Admin')) {
         throw new Error('You are not allowed to delete this comment.');
     }
-    await comment.remove();
+    //await comment.remove();
+    await Comment.deleteOne({ _id: commentId });
+
 };

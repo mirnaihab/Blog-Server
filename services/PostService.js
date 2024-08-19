@@ -10,7 +10,7 @@ exports.createPost = async (postData, userId) => {
 };
 
 exports.getAllPosts = async () => {
-    return await Post.find().populate('author', 'username');
+    return await Post.find().populate('author', 'username').populate('comments');
 };
 
 exports.getPostById = async (id) => {
@@ -42,5 +42,7 @@ exports.deletePost = async (postId, userId, userRoles) => {
     if (post.author.toString() !== userId.toString() && !userRoles.includes('Admin')) {
         throw new Error('You are not allowed to delete this post.');
     }
-    await post.remove();
+    await Post.deleteOne({ _id: postId });
+
+    //await post.remove();
 };

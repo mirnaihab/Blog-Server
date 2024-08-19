@@ -11,13 +11,17 @@ exports.authMiddleware = async (req, res, next) => {
 
         const token = authHeader.replace('Bearer ', '');
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.id);
+        const user = await User.findById(decoded.id).populate('roles', 'name');
 
         if (!user) {
             throw new Error();
         }
         req.user = user;
         req.userRoles = user.roles.map(role => role.name); 
+
+        console.log('User Roles:', req.userRoles); 
+
+
         next();
 
     } catch (error) {
@@ -25,15 +29,22 @@ exports.authMiddleware = async (req, res, next) => {
     }
 };
 
-exports.requireRoles = (...requiredRoles) => {
+
+exports.requireRoles = (requiredRole) => {
     return (req, res, next) => {
-        const userRoles = req.userRoles || [];
-        const hasRole = requiredRoles.some(role => userRoles.includes(role));
+ 
+        // const userRoles = req.user.roles; 
+        const userRoles = req.user.roles.map(role => role.name);
+        console.log('Required Role:', requiredRole);
 
-        if (!hasRole) {
-            return res.status(403).json({ error: 'You do not have the required permissions to access this resource.' });
+        console.log('User Roles 2:', userRoles); 
+        // if (userRoles && userRoles.includes(requiredRole)) {
+        //     return next();
+        if (userRoles.includes(requiredRole)) {
+            return next();
+        } else {
+            return res.status(403).json({ error: "You do not have the required permissions to access this resource." });
         }
-
-        next();
     };
 };
+

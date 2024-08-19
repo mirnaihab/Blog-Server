@@ -40,7 +40,9 @@ exports.deleteRole = async (roleId) => {
         { $pull: { roles: role._id } }
     );
 
-    await role.remove();
+    //await role.remove();
+    await Role.deleteOne({ _id: role._id });
+
     return { message: 'Role deleted successfully' };
 };
 
