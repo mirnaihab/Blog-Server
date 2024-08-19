@@ -27,9 +27,18 @@ exports.getPostById = async (req, res) => {
     }
 };
 
+exports.updatePost = async (req, res) => {
+    try {
+        const updatedPost = await PostService.updatePost(req.params.id, req.body, req.user._id);
+        res.status(200).json(updatedPost);
+    } catch (error) {
+        res.status(403).json({ error: error.message });
+    }
+};
+
 exports.deletePost = async (req, res) => {
     try {
-        await PostService.deletePost(req.params.id, req.user._id);
+        await PostService.deletePost(req.params.id, req.user._id, req.userRoles);
         res.status(200).json({ message: 'Post deleted' });
     } catch (error) {
         res.status(403).json({ error: error.message });

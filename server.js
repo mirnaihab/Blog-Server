@@ -6,6 +6,10 @@ const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const roleRoutes = require('./routes/roleRoutes');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const swaggerDocument = YAML.load('./swagger.yml'); // Ensure the path is correct
+
 
 // const whatsappRoutes = require('./routes/whatsappRoutes');
 const errorMiddleware = require('./middleware/errorMiddleware');
@@ -27,6 +31,8 @@ app.use('/api', roleRoutes);
 
 
 app.use(errorMiddleware);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,7 +1,4 @@
 const User = require('../models/User');
-// const bcrypt = require('bcryptjs');
-// const generateToken = require('../utils/generateToken');
-// const jwt = require('jsonwebtoken');
 const UserService = require('../services/UserService');
 const Role = require('../models/Role');
 

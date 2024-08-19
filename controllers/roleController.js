@@ -14,6 +14,24 @@ exports.getRoleById = async (req, res) => {
     }
 };
 
+exports.getAllRoles = async (req, res) => {
+    try {
+        const roles = await RoleService.getAllRoles();
+        res.status(200).json(roles);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.deleteRole = async (req, res) => {
+    try {
+        const result = await RoleService.deleteRole(req.params.id);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
 
 exports.createRole = async (req, res) => {
     const { roles } = req.body;
@@ -31,15 +49,7 @@ exports.createRole = async (req, res) => {
     }
 };
 
-// exports.assignRoles = async (req, res) => {
-//     const { userId, roles } = req.body;
-//     try {
-//         const updatedUser = await RoleService.assignRolesToUser(userId, roles);
-//         res.status(200).json(updatedUser);
-//     } catch (err) {
-//         res.status(500).json({ message: err.message });
-//     }
-// };
+
 exports.assignRoles = async (req, res) => {
     const { roles } = req.body; 
     const userId = req.params.id; 

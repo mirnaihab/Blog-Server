@@ -19,8 +19,10 @@ exports.loginUser = async ({ email, password }) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
         throw new Error('Invalid credentials');
     }
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    return token;
+    const roles = user.roles.map(role => role.name);
+
+    const token = jwt.sign({ id: user._id , roles}, process.env.JWT_SECRET, { expiresIn: '1h' });
+    return { user, token };
 };
 
 exports.getUserById = async (id) => {
@@ -31,12 +33,30 @@ exports.getUserById = async (id) => {
     return user;
 };
 
-exports.getAllUsers = async (req, res, next) => {
-    try {
-        const users = await UserService.getAllUsers();
-        res.json(users);
-    } catch (error) {
-        next(error);
+exports.getAllUsers = async () => {
+    return await User.find();
+};
+
+exports.updateUser = async (id, updateData) => {
+    const user = await User.findById(id);
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    Object.assign(user, updateData);
+
+    if (updateData.password) {
+        user.password = await bcrypt.hash(user.password, 8);
+    }
+
+    await user.save();
+    return user;
+};
+
+exports.deleteUser = async (id) => {
+    const user = await User.findById(id);
+    if (!user) {
+        throw new Error('User not found');
     }
 };
 

@@ -19,10 +19,29 @@ exports.assignRolesToUser = async (userId, roleNames) => {
     const newRoleIds = roles.map(role => role._id.toString());
     newRoleIds.forEach(roleId => existingRoleIds.add(roleId));
 
-    user.roles = Array.from(existingRoleIds).map(roleId => mongoose.Types.ObjectId(roleId));
+    user.roles = Array.from(existingRoleIds).map(roleId => new mongoose.Types.ObjectId(roleId));
 
     await user.save();
     return user;
+};
+
+exports.getAllRoles = async () => {
+    return await Role.find();
+};
+
+exports.deleteRole = async (roleId) => {
+    const role = await Role.findById(roleId);
+    if (!role) {
+        throw new Error('Role not found');
+    }
+
+    await User.updateMany(
+        { roles: role._id },
+        { $pull: { roles: role._id } }
+    );
+
+    await role.remove();
+    return { message: 'Role deleted successfully' };
 };
 
 const createRole = async (roleName) => {
@@ -35,6 +54,7 @@ const createRole = async (roleName) => {
     await newRole.save();
     return newRole;
 };
+
 
 exports.createRoles = async (rolesArray) => {
     const createdRoles = [];

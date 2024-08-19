@@ -21,10 +21,26 @@ exports.getPostById = async (id) => {
     return post;
 };
 
-exports.deletePost = async (postId, userId) => {
+exports.updatePost = async (postId, postData, userId) => {
     const post = await Post.findById(postId);
-    if (post.author.toString() !== userId) {
-        throw new Error('Not authorized to delete this post');
+    if (!post) {
+        throw new Error('Post not found');
+    }
+    if (post.author.toString() !== userId.toString()) {
+        throw new Error('You are not allowed to edit this post.');
+    }
+    Object.assign(post, postData);
+    await post.save();
+    return post;
+};
+
+exports.deletePost = async (postId, userId, userRoles) => {
+    const post = await Post.findById(postId);
+    if (!post) {
+        throw new Error('Post not found');
+    }
+    if (post.author.toString() !== userId.toString() && !userRoles.includes('Admin')) {
+        throw new Error('You are not allowed to delete this post.');
     }
     await post.remove();
 };
