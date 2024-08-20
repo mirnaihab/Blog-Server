@@ -5,7 +5,7 @@
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "mocha --recursive"
     },
     "keywords": [
         "nodejs",
@@ -32,7 +32,11 @@
     },
     "devDependencies": {
         "@types/node": "^22.4.1",
-        "nodemon": "^2.0.7"
+        "chai": "^4.3.6",
+        "mocha": "^10.7.3",
+        "mockingoose": "^2.16.2",
+        "nodemon": "^2.0.7",
+        "sinon": "^18.0.0"
     },
     "engines": {
         "node": ">=14.0.0"

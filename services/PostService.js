@@ -10,8 +10,11 @@ exports.createPost = async (postData, userId) => {
 };
 
 exports.getAllPosts = async () => {
-    return await Post.find().populate('author', 'username').populate('comments');
+    return await Post.find()
+    .populate('author', 'username')
+    .populate('comments');
 };
+
 
 exports.getPostById = async (id) => {
     const post = await Post.findById(id).populate('author', 'username').populate('comments');
