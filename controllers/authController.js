@@ -27,22 +27,38 @@ exports.signin = async (req, res) => {
 
 const nodemailer = require('nodemailer');
 
+
 exports.requestPasswordReset = async (req, res, next) => {
     try {
-        const user = await UserService.findUserByEmail(req.body.email);
+        const user = await User.findOne({ email: req.body.email });
         if (!user) {
-            return res.status(404).json({ error: 'No account with that email address exists.' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        const token = UserService.generateResetToken();
-        await UserService.saveResetToken(user, token);
-        await UserService.sendResetEmail(req, user, token);
+        const resetToken = await UserService.saveResetToken(user);
 
-        res.status(200).json({ message: `An e-mail has been sent to ${user.email} with further instructions.` });
-    } catch (error) {
-        next(error);
+        await UserService.sendResetEmail(user.email, resetToken);
+
+        res.status(200).json({ message: 'Password reset token generated and email sent.' });
+    } catch (err) {
+        next(err);
     }
 };
+// exports.requestPasswordReset = async (req, res, next) => {
+//     try {
+//         const user = await User.findOne({ email: req.body.email });
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
+
+//         const resetToken = await UserService.saveResetToken(user);
+
+//         // You can send the resetToken via email or another method
+//         res.status(200).json({ message: 'Password reset token generated', resetToken });
+//     } catch (err) {
+//         next(err);
+//     }
+// };
 
 
 exports.resetPassword = async (req, res, next) => {

@@ -182,6 +182,63 @@ paths:
         '200':
           description: User logged in successfully
 
+  /api/forgot-password:
+    post:
+      tags:
+        - Authentication
+      summary: Request password reset
+      description: Sends a password reset email to the user if the provided email is associated with an account.
+      requestBody:
+        description: Email address to send the password reset link
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Password reset email sent successfully
+        '404':
+          description: No account with that email address exists
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/reset-password/{token}:
+    post:
+      tags:
+        - Authentication
+      summary: Reset password
+      description: Resets the user's password using the provided reset token.
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The password reset token
+      requestBody:
+        description: New password
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Password has been successfully reset
+        '400':
+          description: Password reset token is invalid or has expired
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+
   /api/users:
     get:
       tags:

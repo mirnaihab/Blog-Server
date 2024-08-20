@@ -2,6 +2,7 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 
 exports.registerUser = async ({ username, email, password, phoneNumber }) => {
@@ -69,38 +70,94 @@ exports.findUserByResetToken= async (token) =>{
     return await User.findOne({ resetPasswordToken: token });
 }
 
-exports.generateResetToken= async() =>{
-    return crypto.randomBytes(20).toString('hex');
-}
+exports.generateResetToken = async () => {
+    try {
+        const buffer = await new Promise((resolve, reject) => {
+            crypto.randomBytes(20, (err, buf) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(buf);
+                }
+            });
+        });
 
-exports.saveResetToken= async (user, token) =>{
-    user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-    return await user.save();
-}
+        return buffer.toString('hex');
+    } catch (err) {
+        throw new Error('Failed to generate reset token');
+    }
+};
+
+exports.saveResetToken = async (user) => {
+    const resetToken = await this.generateResetToken();
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 3600000; 
+    await user.save();
+    return resetToken;
+};
 
 
-exports.sendResetEmail= async (req, user, token) =>{
-    const transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        auth: {
-            user: process.env.EMAIL,
-            pass: process.env.EMAIL_PASSWORD,
-        },
-    });
+exports.sendResetEmail = async (email, resetToken) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
 
-    const mailOptions = {
-        to: user.email,
-        from: process.env.EMAIL,
-        subject: 'Password Reset',
-        text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n` +
-              `Please click on the following link, or paste this into your browser to complete the process:\n\n` +
-              `http://${req.headers.host}/reset/${token}\n\n` +
-              `If you did not request this, please ignore this email and your password will remain unchanged.\n`,
-    };
+        console.log('Sending email with:', {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+            to: email,
+        });
 
-    return await transporter.sendMail(mailOptions);
-}
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Password Reset Request',
+            text: `You requested a password reset. Use this token to reset your password: ${resetToken}`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        console.log('Password reset email sent to:', email);
+    } catch (err) {
+        console.error('Failed to send reset email:', err);
+        throw new Error('Failed to send reset email');
+    }
+};
+
+
+
+// exports.sendResetEmail = async (email, resetToken) => {
+//     try {
+       
+//         const transporter = nodemailer.createTransport({
+//             service: 'Gmail', 
+//             auth: {
+//                 user: process.env.EMAIL_USER, 
+//                 pass: process.env.EMAIL_PASS, 
+//             },
+//         });
+
+        
+//         const mailOptions = {
+//             from: process.env.EMAIL_USER, 
+//             to: email, 
+//             subject: 'Password Reset Request',
+//             text: `You requested a password reset. Use this token to reset your password: ${resetToken}`,
+//             };
+
+//         await transporter.sendMail(mailOptions);
+
+//         console.log('Password reset email sent to:', email);
+//     } catch (err) {
+//         console.error('Failed to send reset email:', err);
+//         throw new Error('Failed to send reset email');
+//     }
+// };
 
 exports.hashPassword = async (password) => {
     const salt = await bcrypt.genSalt(10);
