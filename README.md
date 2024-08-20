@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Blog Application is a full-featured blog management system that allows users to manage posts, comments, and roles, along with user authentication and authorization. This README provides an overview of the application's features, API endpoints, and usage instructions.
+The Blog Application is a full-featured blog management system built using Node.js and Express. It allows users to manage posts, comments, roles, and user authentication and authorization. This README provides an overview of the application's features, API endpoints, and usage instructions.
 
 ## Features
 ### Authentication
